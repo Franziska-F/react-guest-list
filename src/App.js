@@ -1,13 +1,8 @@
 /** @jsxImportSource @emotion/react */
 
 import './App.css';
-
-import {
-  useEffect,
-  useState,
-} from 'react';
-
 import { css } from '@emotion/react';
+import { useEffect, useState } from 'react';
 
 const wrapper = css`
   margin: 30px auto;
@@ -61,42 +56,12 @@ export default function App() {
     });
   }, []);
 
-  useEffect(() => {
-    /* const listPlusGuest = guestList.map((guest, index) => {
-        if (index === 0) {
-          const newGuest = { ...guest };
-          newGuest.firstName = 'Roberto';
-          newGuest.lastName = 'Duran';
-          return newGuest;
-        }
-        return guest;
-      });
-      setGuestList(listPlusGuest); 
-      // const data = {
-      // firstName: 'Roberto',
-      // lastName: 'Duran',
-      //  }; */
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        firstName: firstName, // 'Roberto',
-        lastName: lastName, // 'Druan',
-      }),
-    };
-    fetch('http://desolate-crag-14718.herokuapp.com/guests/', requestOptions)
-      .then((response) => response.json())
-      .then((res) => console.log(res))
-      .catch(() => {
-        console.log('fetch fails');
-      });
-  }, [firstName, lastName]);
+ 
 
   return loading ? (
     <h2>loading...</h2>
   ) : (
+
     <div css={wrapper}>
       <div className="dispaly-list">
         <header>
@@ -108,6 +73,7 @@ export default function App() {
         <div className="guest">
           {guestList.map((guest) => {
             return (
+
               <div key={guest.id}>
                 <span id="first-name">{guest.firstName}</span>
                 <span id="last-name">{guest.lastName}</span>
@@ -157,5 +123,6 @@ export default function App() {
         </div>
       </div>
     </div>
+
   );
 }

@@ -1,13 +1,8 @@
 /** @jsxImportSource @emotion/react */
 
 import './App.css';
-
-import {
-  useEffect,
-  useState,
-} from 'react';
-
 import { css } from '@emotion/react';
+import { useEffect, useState } from 'react';
 
 const wrapper = css`
   margin: 30px auto;
@@ -22,9 +17,9 @@ const wrapper = css`
   .guest {
     display: flex;
     gap: 40px;
-    span {
-      margin: 0 5px 0 5px;
-    }
+  }
+  .guest-name span {
+    margin: 0 5px 0 5px;
   }
 `;
 
@@ -38,23 +33,12 @@ export default function Test() {
 
   // delete request
 
-  const handleClick = (id) => {
-    fetch(`http://desolate-crag-14718.herokuapp.com/guests/${id}`, {
+  async function handleClick(id) {
+    await fetch(`http://desolate-crag-14718.herokuapp.com/guests/${id}`, {
       method: 'DELETE',
-    }).catch(() => console.log('Delete Error'));
-  };
-
-  /* const handelAttending = (id) => {
-    fetch(`http://desolate-crag-14718.herokuapp.com/guests/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        attending: true,
-      }),
-    }).catch(() => console.log('Put error'));
-  }; */
+    });
+    setIsLoading(false);
+  }
 
   useEffect(() => {
     fetch('http://desolate-crag-14718.herokuapp.com/guests/')
@@ -72,39 +56,47 @@ export default function Test() {
         console.log('fetch fails'); // other good idea: .catch(err => {console.log(err.message)}), logs the actual error message
         // console.log(firstName, lastName);
       });
-  }, [refetch]);
+  }, []);
 
-  const addGuest = () => {
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+  async function addGuest(firstName, lastName) {
+    const requestOptions = await fetch(
+      'http://desolate-crag-14718.herokuapp.com/guests/',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: firstName,
+          lastName: lastName,
+        }),
       },
-      body: JSON.stringify({
-        firstName: firstName,
-        lastName: lastName,
-      }),
-    };
+    );
 
-    fetch('http://desolate-crag-14718.herokuapp.com/guests/', requestOptions)
-      .then((response) => response.json())
-      .then((res) => console.log(res))
-
-      .catch(() => {
-        console.log('fetch fails');
-      });
-
-    setFirstName('');
-    setLastName('');
-
-    const updatetList = [
+    /* const updatetList = [
       ...guestList,
       {
         firstName: firstName,
         lastName: lastName,
+        id: guest.id
       },
     ];
     setGuestList(updatetList);
+    // setIsLoading(false);
+    // setRefetch(false);
+  }; */
+  }
+
+  const handleAttending = (id) => {
+    const requestOptions = {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        attending: !attending,
+      }),
+    };
   };
 
   return isLoading ? ( // Ternary to delay the rendering of map, if there is no operater, map has property of null because it is rendert before data is fetched
@@ -128,13 +120,17 @@ export default function Test() {
                 <span id="last-name">{guest.lastName}</span>
 
                 <input
-                  id="checkbox"
+                  id={guest.id}
                   type="checkbox"
                   aria-label="Attending"
                   checked={attending}
-                  onChange={(event) =>
-                    setAttending(event.currentTarget.checked)
-                  }
+                  onChange={(event) => {
+                    setAttending(event.currentTarget.checked);
+                    console.log(event);
+
+                    const id = guest.id;
+                    handleAttending(id);
+                  }}
                 />
                 <div>
                   <button
@@ -142,10 +138,16 @@ export default function Test() {
                       const reducedGuestList = guestList.filter(
                         (eachGuest) => eachGuest.id !== guest.id,
                       );
+                      console.log(reducedGuestList);
+                      console.log(guestList);
+
                       const id = guest.id;
+                      console.log(id);
                       setGuestList(reducedGuestList);
                       // setRefetch(!refetch);
-                      handleClick(id);
+                      handleClick(id).catch(() => {
+                        console.log('Delte failed');
+                      });
                     }}
                   >
                     Remove
@@ -177,7 +179,18 @@ export default function Test() {
               onChange={(event) => setLastName(event.currentTarget.value)} // event-object
               onKeyDown={(event) => {
                 if (event.key === 'Enter') {
-                  addGuest();
+                  const updatetList = [
+                    ...guestList,
+                    {
+                      firstName: firstName,
+                      lastName: lastName,
+                    },
+                  ];
+                  addGuest(firstName, lastName).catch(() => {
+                    console.log('Post fails');
+                  });
+                  console.log('first', firstName);
+                  setGuestList(updatetList);
                 }
               }}
             />
